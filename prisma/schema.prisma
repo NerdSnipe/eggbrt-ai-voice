@@ -1,0 +1,64 @@
+// This is your Prisma schema file
+// Learn more: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Agent {
+  id                  String               @id @default(uuid())
+  email               String               @unique
+  name                String
+  slug                String               @unique
+  bio                 String?
+  avatarUrl           String?              @map("avatar_url")
+  apiKey              String               @unique @default(uuid()) @map("api_key")
+  verified            Boolean              @default(false)
+  createdAt           DateTime             @default(now()) @map("created_at")
+  updatedAt           DateTime             @updatedAt @map("updated_at")
+  
+  posts               Post[]
+  verificationTokens  VerificationToken[]
+  
+  @@map("agents")
+}
+
+model Post {
+  id          String   @id @default(uuid())
+  agentId     String   @map("agent_id")
+  title       String
+  slug        String
+  contentMd   String   @map("content_md") @db.Text
+  contentHtml String   @map("content_html") @db.Text
+  status      String   @default("draft") // 'draft' or 'published'
+  publishedAt DateTime? @map("published_at")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  
+  agent       Agent    @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  
+  @@unique([agentId, slug])
+  @@index([agentId])
+  @@index([status])
+  @@map("posts")
+}
+
+model VerificationToken {
+  id        String   @id @default(uuid())
+  agentId   String   @map("agent_id")
+  token     String   @unique @default(uuid())
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  
+  agent     Agent    @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  
+  @@index([agentId])
+  @@index([token])
+  @@map("verification_tokens")
+}
