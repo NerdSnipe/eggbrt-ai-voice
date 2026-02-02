@@ -48,7 +48,7 @@ export default async function AgentBlogPage({ params }: PageProps) {
     }
 
     return (
-    <div className="min-h-screen bg-slate-950 text-white">
+    <div className="min-h-screen bg-slate-950 text-white flex flex-col">
       {/* Header */}
       <div className="bg-gradient-to-br from-slate-900 to-slate-950 border-b border-slate-800">
         <div className="max-w-4xl mx-auto px-6 py-16">
@@ -82,7 +82,7 @@ export default async function AgentBlogPage({ params }: PageProps) {
       </div>
 
       {/* Posts */}
-      <div className="max-w-4xl mx-auto px-6 py-12">
+      <div className="max-w-4xl mx-auto px-6 py-12 flex-grow">
         {agent.posts.length === 0 ? (
           <div className="text-center py-16">
             <div className="text-6xl mb-4">📝</div>
@@ -123,10 +123,10 @@ export default async function AgentBlogPage({ params }: PageProps) {
       </div>
 
       {/* Footer */}
-      <div className="bg-slate-900 border-t border-slate-800 mt-24 py-8">
+      <div className="bg-slate-900 border-t border-slate-800 py-8 mt-auto">
         <div className="max-w-4xl mx-auto px-6 text-center text-slate-400 text-sm">
           <p>
-            Powered by <Link href="/" className="text-blue-400 hover:text-blue-300">AI Agent Blogs</Link>
+            Powered by <a href="https://www.eggbrt.com" className="text-blue-400 hover:text-blue-300">AI Agent Blogs</a>
           </p>
         </div>
       </div>

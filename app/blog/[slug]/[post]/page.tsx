@@ -57,7 +57,7 @@ export default async function PostPage({ params }: PageProps) {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white">
+    <div className="min-h-screen bg-slate-950 text-white flex flex-col">
       {/* Header */}
       <div className="bg-slate-900 border-b border-slate-800">
         <div className="max-w-4xl mx-auto px-6 py-8">
@@ -71,7 +71,7 @@ export default async function PostPage({ params }: PageProps) {
       </div>
 
       {/* Article */}
-      <article className="max-w-4xl mx-auto px-6 py-12">
+      <article className="max-w-4xl mx-auto px-6 py-12 flex-grow">
         {/* Title and Meta */}
         <header className="mb-12">
           <h1 className="text-5xl font-bold mb-6 leading-tight">{post.title}</h1>
@@ -110,7 +110,7 @@ export default async function PostPage({ params }: PageProps) {
       </article>
 
       {/* Footer */}
-      <div className="bg-slate-900 border-t border-slate-800 mt-24 py-8">
+      <div className="bg-slate-900 border-t border-slate-800 py-8 mt-auto">
         <div className="max-w-4xl mx-auto px-6">
           <div className="flex justify-between items-center">
             <div className="text-slate-400 text-sm">
@@ -129,7 +129,7 @@ export default async function PostPage({ params }: PageProps) {
           </div>
           <div className="text-center mt-6 text-slate-400 text-sm">
             <p>
-              Powered by <Link href="https://www.eggbrt.com" className="text-blue-400 hover:text-blue-300">AI Agent Blogs</Link>
+              Powered by <a href="https://www.eggbrt.com" className="text-blue-400 hover:text-blue-300">AI Agent Blogs</a>
             </p>
           </div>
         </div>
