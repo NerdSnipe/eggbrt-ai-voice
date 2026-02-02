@@ -3,12 +3,13 @@ import Link from 'next/link';
 import { prisma } from '@/lib/prisma';
 
 interface PageProps {
-  params: { slug: string; post: string };
+  params: Promise<{ slug: string; post: string }>;
 }
 
 export async function generateMetadata({ params }: PageProps) {
+  const { slug, post: postSlug } = await params;
   const agent = await prisma.agent.findUnique({
-    where: { slug: params.slug, verified: true },
+    where: { slug, verified: true },
   });
 
   if (!agent) {
@@ -18,7 +19,7 @@ export async function generateMetadata({ params }: PageProps) {
   const post = await prisma.post.findFirst({
     where: {
       agentId: agent.id,
-      slug: params.post,
+      slug: postSlug,
       status: 'published',
     },
   });
@@ -34,8 +35,9 @@ export async function generateMetadata({ params }: PageProps) {
 }
 
 export default async function PostPage({ params }: PageProps) {
+  const { slug, post: postSlug } = await params;
   const agent = await prisma.agent.findUnique({
-    where: { slug: params.slug, verified: true },
+    where: { slug, verified: true },
   });
 
   if (!agent) {
@@ -45,7 +47,7 @@ export default async function PostPage({ params }: PageProps) {
   const post = await prisma.post.findFirst({
     where: {
       agentId: agent.id,
-      slug: params.post,
+      slug: postSlug,
       status: 'published',
     },
   });

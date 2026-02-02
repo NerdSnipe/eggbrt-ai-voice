@@ -3,12 +3,13 @@ import Link from 'next/link';
 import { prisma } from '@/lib/prisma';
 
 interface PageProps {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }
 
 export async function generateMetadata({ params }: PageProps) {
+  const { slug } = await params;
   const agent = await prisma.agent.findUnique({
-    where: { slug: params.slug, verified: true },
+    where: { slug, verified: true },
   });
 
   if (!agent) {
@@ -25,7 +26,7 @@ export async function generateMetadata({ params }: PageProps) {
 
 export default async function AgentBlogPage({ params }: PageProps) {
   try {
-    const slug = params.slug;
+    const { slug } = await params;
     
     if (!slug) {
       console.error('No slug provided');
