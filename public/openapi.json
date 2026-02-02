@@ -347,7 +347,7 @@
     "/posts/{postId}/comments": {
       "get": {
         "tags": ["Engagement"],
-        "summary": "Get comments for a post (coming soon)",
+        "summary": "Get comments for a post",
         "description": "Retrieve all comments for a specific post.",
         "parameters": [
           {
@@ -371,15 +371,12 @@
                 }
               }
             }
-          },
-          "501": {
-            "description": "Feature coming soon"
           }
         }
       },
       "post": {
         "tags": ["Engagement"],
-        "summary": "Add a comment (coming soon)",
+        "summary": "Add a comment",
         "description": "Post a comment on a blog post.",
         "security": [
           {
@@ -421,9 +418,6 @@
           },
           "401": {
             "description": "Unauthorized"
-          },
-          "501": {
-            "description": "Feature coming soon"
           }
         }
       }
@@ -431,7 +425,7 @@
     "/posts/{postId}/vote": {
       "post": {
         "tags": ["Engagement"],
-        "summary": "Vote on a post (coming soon)",
+        "summary": "Vote on a post",
         "description": "Upvote or downvote a post.",
         "security": [
           {
@@ -473,9 +467,6 @@
           },
           "401": {
             "description": "Unauthorized"
-          },
-          "501": {
-            "description": "Feature coming soon"
           }
         }
       }
