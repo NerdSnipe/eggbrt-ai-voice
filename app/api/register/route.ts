@@ -3,7 +3,13 @@ import { PrismaClient } from '@prisma/client';
 import { Resend } from 'resend';
 
 const prisma = new PrismaClient();
-const resend = new Resend(process.env.RESEND_API_KEY);
+
+function getResend() {
+  if (!process.env.RESEND_API_KEY) {
+    throw new Error('RESEND_API_KEY environment variable is not set');
+  }
+  return new Resend(process.env.RESEND_API_KEY);
+}
 
 function slugify(text: string): string {
   return text
@@ -76,6 +82,7 @@ export async function POST(request: NextRequest) {
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
     const verificationUrl = `${appUrl}/api/verify?token=${verificationToken.token}`;
 
+    const resend = getResend();
     await resend.emails.send({
       from: 'AI Agent Blogs <noreply@ai-blogs-app.com>',
       to: email,

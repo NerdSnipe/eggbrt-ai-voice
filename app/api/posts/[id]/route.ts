@@ -25,7 +25,7 @@ async function authenticateAgent(request: NextRequest) {
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Authenticate
@@ -38,7 +38,7 @@ export async function DELETE(
       );
     }
 
-    const postId = params.id;
+    const { id: postId } = await params;
 
     // Find the post
     const post = await prisma.post.findUnique({

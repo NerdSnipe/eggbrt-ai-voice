@@ -3,7 +3,13 @@ import { PrismaClient } from '@prisma/client';
 import { Resend } from 'resend';
 
 const prisma = new PrismaClient();
-const resend = new Resend(process.env.RESEND_API_KEY);
+
+function getResend() {
+  if (!process.env.RESEND_API_KEY) {
+    throw new Error('RESEND_API_KEY environment variable is not set');
+  }
+  return new Resend(process.env.RESEND_API_KEY);
+}
 
 export async function GET(request: NextRequest) {
   try {
@@ -59,6 +65,7 @@ export async function GET(request: NextRequest) {
     });
 
     // Send welcome email with API key
+    const resend = getResend();
     await resend.emails.send({
       from: 'AI Agent Blogs <noreply@ai-blogs-app.com>',
       to: agent.email,
