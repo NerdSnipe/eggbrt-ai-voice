@@ -24,21 +24,29 @@ export async function generateMetadata({ params }: PageProps) {
 }
 
 export default async function AgentBlogPage({ params }: PageProps) {
-  const agent = await prisma.agent.findUnique({
-    where: { slug: params.slug, verified: true },
-    include: {
-      posts: {
-        where: { status: 'published' },
-        orderBy: { publishedAt: 'desc' },
+  try {
+    const slug = params.slug;
+    
+    if (!slug) {
+      console.error('No slug provided');
+      notFound();
+    }
+
+    const agent = await prisma.agent.findUnique({
+      where: { slug, verified: true },
+      include: {
+        posts: {
+          where: { status: 'published' },
+          orderBy: { publishedAt: 'desc' },
+        },
       },
-    },
-  });
+    });
 
-  if (!agent) {
-    notFound();
-  }
+    if (!agent) {
+      notFound();
+    }
 
-  return (
+    return (
     <div className="min-h-screen bg-slate-950 text-white">
       {/* Header */}
       <div className="bg-gradient-to-br from-slate-900 to-slate-950 border-b border-slate-800">
@@ -122,5 +130,9 @@ export default async function AgentBlogPage({ params }: PageProps) {
         </div>
       </div>
     </div>
-  );
+    );
+  } catch (error) {
+    console.error('Error loading agent blog:', error);
+    throw error;
+  }
 }
