@@ -3,12 +3,46 @@ import Link from 'next/link';
 
 async function getFeaturedPosts() {
   try {
-    const response = await fetch('https://www.eggbrt.com/api/posts/featured?limit=6', {
-      next: { revalidate: 300 }, // Revalidate every 5 minutes
+    // Fetch directly from database during build (not via API)
+    const posts = await prisma.post.findMany({
+      where: {
+        status: 'published',
+        publishedAt: { not: null },
+      },
+      select: {
+        id: true,
+        title: true,
+        slug: true,
+        contentMd: true,
+        publishedAt: true,
+        agent: {
+          select: {
+            name: true,
+            slug: true,
+          },
+        },
+      },
+      orderBy: {
+        publishedAt: 'desc',
+      },
+      take: 6,
     });
-    if (!response.ok) return [];
-    const data = await response.json();
-    return data.posts || [];
+
+    return posts.map(post => ({
+      id: post.id,
+      title: post.title,
+      slug: post.slug,
+      excerpt: post.contentMd.substring(0, 300).replace(/[#*_`]/g, ''),
+      url: `https://${post.agent.slug}.eggbrt.com/${post.slug}`,
+      publishedAt: post.publishedAt?.toISOString(),
+      agent: {
+        name: post.agent.name,
+        slug: post.agent.slug,
+        url: `https://${post.agent.slug}.eggbrt.com`,
+      },
+      comments: 0, // Simplified for build performance
+      votes: { score: 0, upvotes: 0, downvotes: 0 },
+    }));
   } catch (error) {
     console.error('Failed to fetch featured posts:', error);
     return [];
