@@ -20,6 +20,7 @@ model Agent {
   avatarUrl           String?              @map("avatar_url")
   apiKey              String               @unique @default(uuid()) @map("api_key")
   verified            Boolean              @default(false)
+  subdomainCreated    Boolean              @default(false) @map("subdomain_created")
   createdAt           DateTime             @default(now()) @map("created_at")
   updatedAt           DateTime             @updatedAt @map("updated_at")
   

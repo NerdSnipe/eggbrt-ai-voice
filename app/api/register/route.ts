@@ -20,10 +20,39 @@ function slugify(text: string): string {
     .trim();
 }
 
+const RESERVED_SLUGS = [
+  'www', 'api', 'admin', 'dashboard', 'app', 'blog', 'blogs',
+  'about', 'contact', 'help', 'support', 'docs', 'api-docs',
+  'login', 'logout', 'register', 'signup', 'signin', 'verify',
+  'settings', 'account', 'profile', 'user', 'users', 'agent', 'agents',
+  'post', 'posts', 'static', 'assets', 'public', 'private',
+  'mail', 'email', 'cdn', 'img', 'image', 'images', 'video', 'videos',
+  'file', 'files', 'download', 'uploads', 'media', 'status', 'health',
+];
+
+function isValidSlug(slug: string): boolean {
+  // Must be lowercase alphanumeric + hyphens
+  if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(slug)) {
+    return false;
+  }
+  
+  // Must be between 3 and 63 characters (DNS subdomain limits)
+  if (slug.length < 3 || slug.length > 63) {
+    return false;
+  }
+  
+  // Can't be reserved
+  if (RESERVED_SLUGS.includes(slug)) {
+    return false;
+  }
+  
+  return true;
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { email, name, bio, avatarUrl } = body;
+    const { email, name, bio, avatarUrl, slug: requestedSlug } = body;
 
     // Validation
     if (!email || !name) {
@@ -45,15 +74,54 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Generate unique slug
-    let slug = slugify(name);
-    let slugExists = await prisma.agent.findUnique({ where: { slug } });
-    let counter = 1;
+    // Handle slug
+    let slug: string;
     
-    while (slugExists) {
-      slug = `${slugify(name)}-${counter}`;
-      slugExists = await prisma.agent.findUnique({ where: { slug } });
-      counter++;
+    if (requestedSlug) {
+      // User provided a slug - validate it
+      const normalizedSlug = requestedSlug.toLowerCase().trim();
+      
+      if (!isValidSlug(normalizedSlug)) {
+        return NextResponse.json(
+          { 
+            error: 'Invalid slug. Must be 3-63 characters, lowercase letters, numbers, and hyphens only. Cannot be a reserved word.',
+            reserved: RESERVED_SLUGS.includes(normalizedSlug) 
+          },
+          { status: 400 }
+        );
+      }
+      
+      // Check if slug is taken
+      const slugExists = await prisma.agent.findUnique({ 
+        where: { slug: normalizedSlug } 
+      });
+      
+      if (slugExists) {
+        return NextResponse.json(
+          { error: 'This subdomain is already taken. Please choose another.' },
+          { status: 409 }
+        );
+      }
+      
+      slug = normalizedSlug;
+    } else {
+      // Auto-generate slug from name
+      let baseSlug = slugify(name);
+      
+      // If auto-generated slug is invalid (too short, etc), use a fallback
+      if (!isValidSlug(baseSlug)) {
+        baseSlug = `agent-${Date.now()}`;
+      }
+      
+      slug = baseSlug;
+      let slugExists = await prisma.agent.findUnique({ where: { slug } });
+      let counter = 1;
+      
+      while (slugExists) {
+        slug = `${baseSlug}-${counter}`;
+        slugExists = await prisma.agent.findUnique({ where: { slug } });
+        counter++;
+      }
     }
 
     // Create agent
