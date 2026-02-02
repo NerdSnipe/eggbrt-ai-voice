@@ -1,6 +1,3 @@
-// This is your Prisma schema file
-// Learn more: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -11,6 +8,141 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model pending_booking_travellers {
+  id                 Int               @id @default(autoincrement())
+  created_at         DateTime?         @default(now()) @db.Timestamptz(6)
+  updated_at         DateTime?         @default(now()) @db.Timestamptz(6)
+  deleted_at         DateTime?         @db.Timestamptz(6)
+  pending_booking_id Int?
+  traveller_id       Int?
+  role               String            @default("guest") @db.VarChar(20)
+  first_name         String?           @db.VarChar(255)
+  last_name          String?           @db.VarChar(255)
+  email              String?           @db.VarChar(255)
+  phone              String?           @db.VarChar(255)
+  passport_number    String?           @db.VarChar(255)
+  passport_country   String?           @db.VarChar(2)
+  pending_bookings   pending_bookings? @relation(fields: [pending_booking_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  travellers         travellers?       @relation(fields: [traveller_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([pending_booking_id, traveller_id])
+  @@index([pending_booking_id], map: "idx_pending_booking_travellers_booking_id")
+  @@index([traveller_id], map: "idx_pending_booking_travellers_traveller_id")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model pending_bookings {
+  id                         Int                          @id @default(autoincrement())
+  created_at                 DateTime?                    @default(now()) @db.Timestamptz(6)
+  updated_at                 DateTime?                    @default(now()) @db.Timestamptz(6)
+  deleted_at                 DateTime?                    @db.Timestamptz(6)
+  booking_type               String                       @db.VarChar(20)
+  status                     String                       @default("pending") @db.VarChar(20)
+  flight_id                  String?                      @db.VarChar(255)
+  flight_details             Json?
+  hotel_id                   String?                      @db.VarChar(255)
+  hotel_details              Json?
+  hotel_room_rate_id         String?                      @db.VarChar(255)
+  check_in_date              DateTime?                    @db.Date
+  check_out_date             DateTime?                    @db.Date
+  payment_intent_id          String                       @db.VarChar(255)
+  currency                   String                       @db.VarChar(3)
+  total_amount               Decimal                      @db.Decimal(10, 2)
+  payment_status             String                       @default("pending") @db.VarChar(20)
+  user_id                    Int?
+  metadata                   Json?
+  expires_at                 DateTime                     @default(dbgenerated("(CURRENT_TIMESTAMP + '24:00:00'::interval)")) @db.Timestamptz(6)
+  duffel_booking_id          String?                      @db.VarChar(255)
+  duffel_booking_reference   String?                      @db.VarChar(255)
+  pending_booking_travellers pending_booking_travellers[]
+  users                      users?                       @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([duffel_booking_id], map: "idx_pending_bookings_duffel_booking_id")
+  @@index([duffel_booking_reference], map: "idx_pending_bookings_duffel_booking_reference")
+  @@index([expires_at], map: "idx_pending_bookings_expires_at")
+  @@index([payment_intent_id], map: "idx_pending_bookings_payment_intent_id")
+  @@index([payment_status], map: "idx_pending_bookings_payment_status")
+  @@index([status], map: "idx_pending_bookings_status")
+  @@index([user_id], map: "idx_pending_bookings_user_id")
+}
+
+model traveller_addresses {
+  id           Int         @id @default(autoincrement())
+  traveller_id Int?
+  street       String      @db.VarChar(255)
+  city         String      @db.VarChar(100)
+  state        String?     @db.VarChar(100)
+  postal_code  String?     @db.VarChar(20)
+  country      String      @db.VarChar(100)
+  created_at   DateTime?   @default(now()) @db.Timestamptz(6)
+  updated_at   DateTime?   @default(now()) @db.Timestamptz(6)
+  deleted_at   DateTime?   @db.Timestamptz(6)
+  travellers   travellers? @relation(fields: [traveller_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([deleted_at], map: "idx_traveller_addresses_deleted_at")
+}
+
+model travellers {
+  id                         Int                          @id @default(autoincrement())
+  user_id                    Int?
+  is_primary                 Boolean?                     @default(false)
+  first_name                 String                       @db.VarChar(255)
+  last_name                  String                       @db.VarChar(255)
+  date_of_birth              DateTime                     @db.Date
+  nationality                String?                      @db.VarChar(100)
+  email                      String?                      @db.VarChar(255)
+  phone                      String?                      @db.VarChar(50)
+  passport_number            String?                      @db.VarChar(100)
+  passport_expiry            DateTime?                    @db.Date
+  passport_issue_country     String?                      @db.VarChar(100)
+  passport_issue_date        DateTime?                    @db.Date
+  created_at                 DateTime?                    @default(now()) @db.Timestamptz(6)
+  updated_at                 DateTime?                    @default(now()) @db.Timestamptz(6)
+  deleted_at                 DateTime?                    @db.Timestamptz(6)
+  pending_booking_travellers pending_booking_travellers[]
+  traveller_addresses        traveller_addresses[]
+  users                      users?                       @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([deleted_at], map: "idx_travellers_deleted_at")
+}
+
+model user_preferences {
+  user_id             Int       @id
+  show_flights        Boolean?  @default(true)
+  show_stays          Boolean?  @default(true)
+  theme               String?   @default("system") @db.VarChar(10)
+  created_at          DateTime? @default(now()) @db.Timestamptz(6)
+  updated_at          DateTime? @default(now()) @db.Timestamptz(6)
+  deleted_at          DateTime? @db.Timestamptz(6)
+  language            String    @default("en") @db.VarChar(10)
+  currency            String    @default("USD") @db.VarChar(3)
+  timezone            String    @default("UTC") @db.VarChar(50)
+  email_notifications Boolean   @default(true)
+  marketing_emails    Boolean   @default(false)
+  users               users     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model users {
+  id                 Int                @id @default(autoincrement())
+  name               String             @db.VarChar(255)
+  email              String             @unique @db.VarChar(255)
+  user_type          String             @db.VarChar(255)
+  password_hash      String             @db.VarChar(255)
+  stripe_customer_id String?            @db.VarChar(255)
+  stripe_card_last   String?            @db.VarChar(4)
+  unity_contact_id   String?            @db.VarChar(255)
+  created_at         DateTime?          @default(now()) @db.Timestamptz(6)
+  updated_at         DateTime?          @default(now()) @db.Timestamptz(6)
+  deleted_at         DateTime?          @db.Timestamptz(6)
+  pending_bookings   pending_bookings[]
+  travellers         travellers[]
+  user_preferences   user_preferences?
+}
+
+// AI Agent Blogs Models
 model Agent {
   id                  String               @id @default(uuid())
   email               String               @unique
@@ -37,7 +169,7 @@ model Post {
   slug        String
   contentMd   String   @map("content_md") @db.Text
   contentHtml String   @map("content_html") @db.Text
-  status      String   @default("draft") // 'draft' or 'published'
+  status      String   @default("draft")
   publishedAt DateTime? @map("published_at")
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")

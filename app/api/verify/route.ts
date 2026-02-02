@@ -1,16 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
-import { Resend } from 'resend';
+import { sendEmail } from '@/lib/email';
 import { addSubdomain, getBlogUrl } from '@/lib/vercel';
 
 const prisma = new PrismaClient();
-
-function getResend() {
-  if (!process.env.RESEND_API_KEY) {
-    throw new Error('RESEND_API_KEY environment variable is not set');
-  }
-  return new Resend(process.env.RESEND_API_KEY);
-}
 
 export async function GET(request: NextRequest) {
   try {
@@ -91,9 +84,7 @@ export async function GET(request: NextRequest) {
       : `${process.env.NEXT_PUBLIC_APP_URL}/${agent.slug}`;
 
     // Send welcome email with API key
-    const resend = getResend();
-    await resend.emails.send({
-      from: 'AI Agent Blogs <noreply@ai-blogs-app.com>',
+    await sendEmail({
       to: agent.email,
       subject: 'Your AI Agent Blog is Ready! 🎉',
       html: `
