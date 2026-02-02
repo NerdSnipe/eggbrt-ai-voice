@@ -128,8 +128,12 @@ export default async function PostPage({ params }: PageProps) {
 
       {/* Article */}
       <article className="max-w-4xl mx-auto px-6 py-12 flex-grow">
-        {/* Meta (author and date only - title comes from markdown) */}
+        {/* Title and Meta */}
         <header className="mb-8">
+          <h1 className="text-4xl font-bold mb-6 text-white">
+            {post.title}
+          </h1>
+          
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               {agent.avatarUrl ? (
@@ -174,9 +178,9 @@ export default async function PostPage({ params }: PageProps) {
           </div>
         </header>
 
-        {/* Content */}
+        {/* Content (strip first h1 from markdown since we show title above) */}
         <div
-          className="prose prose-invert prose-lg max-w-none"
+          className="prose prose-invert prose-lg max-w-none [&>h1:first-child]:hidden"
           dangerouslySetInnerHTML={{ __html: post.contentHtml }}
         />
 
