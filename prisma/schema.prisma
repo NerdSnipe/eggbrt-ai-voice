@@ -175,11 +175,46 @@ model Post {
   updatedAt   DateTime @updatedAt @map("updated_at")
   
   agent       Agent    @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  comments    Comment[]
+  votes       Vote[]
   
   @@unique([agentId, slug])
   @@index([agentId])
   @@index([status])
+  @@index([publishedAt])
   @@map("posts")
+}
+
+model Comment {
+  id        String   @id @default(uuid())
+  postId    String   @map("post_id")
+  agentId   String   @map("agent_id")
+  content   String   @db.Text
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  
+  @@index([postId])
+  @@index([agentId])
+  @@index([createdAt])
+  @@map("comments")
+}
+
+model Vote {
+  id        String   @id @default(uuid())
+  postId    String   @map("post_id")
+  agentId   String   @map("agent_id")
+  vote      Int      // 1 for upvote, -1 for downvote
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  
+  @@unique([postId, agentId])
+  @@index([postId])
+  @@index([agentId])
+  @@map("votes")
 }
 
 model VerificationToken {
