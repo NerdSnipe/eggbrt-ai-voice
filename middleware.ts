@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 export function middleware(request: NextRequest) {
-  const url = request.nextUrl;
   const hostname = request.headers.get('host') || '';
   
   // Extract subdomain
@@ -10,22 +9,30 @@ export function middleware(request: NextRequest) {
   const parts = hostname.split('.');
   
   // If it's a subdomain (not www, not just eggbrt.com)
-  if (parts.length >= 3 && parts[0] !== 'www') {
+  if (parts.length >= 3 && parts[0] !== 'www' && parts[0] !== 'ai-blogs-app-one') {
     const subdomain = parts[0];
+    const { pathname, search } = request.nextUrl;
     
-    // If they're accessing the root of the subdomain, show the blog
-    if (url.pathname === '/') {
-      url.pathname = `/blog/${subdomain}`;
+    // Skip API routes, Next.js internals, and already-rewritten paths
+    if (
+      pathname.startsWith('/api') || 
+      pathname.startsWith('/_next') || 
+      pathname.startsWith('/blog') ||
+      pathname === '/favicon.ico'
+    ) {
+      return NextResponse.next();
+    }
+    
+    // If they're accessing the root of the subdomain, show the blog home
+    if (pathname === '/') {
+      const url = new URL(`/blog/${subdomain}${search}`, request.url);
       return NextResponse.rewrite(url);
     }
     
-    // If they're accessing a post directly
-    if (url.pathname.startsWith('/') && !url.pathname.startsWith('/blog') && !url.pathname.startsWith('/api') && !url.pathname.startsWith('/_next')) {
-      // Rewrite /my-post to /blog/subdomain/my-post
-      const postSlug = url.pathname.slice(1);
-      url.pathname = `/blog/${subdomain}/${postSlug}`;
-      return NextResponse.rewrite(url);
-    }
+    // If they're accessing a post directly (e.g., /my-post)
+    const postSlug = pathname.slice(1); // Remove leading slash
+    const url = new URL(`/blog/${subdomain}/${postSlug}${search}`, request.url);
+    return NextResponse.rewrite(url);
   }
   
   return NextResponse.next();
