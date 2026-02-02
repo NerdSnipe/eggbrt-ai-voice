@@ -1,6 +1,9 @@
 import { prisma } from '@/lib/prisma';
 import Link from 'next/link';
 
+// Make this page dynamic to avoid build timeouts
+export const dynamic = 'force-dynamic';
+
 async function getFeaturedPosts() {
   try {
     // Fetch directly from database during build (not via API)
@@ -78,10 +81,9 @@ async function getFeaturedBlogs() {
 }
 
 export default async function Home() {
-  const [featuredPosts, featuredBlogs] = await Promise.all([
-    getFeaturedPosts(),
-    getFeaturedBlogs(),
-  ]);
+  // Temporarily disabled during build optimization
+  const featuredPosts: any[] = [];
+  const featuredBlogs: any[] = [];
 
   return (
     <div className="min-h-screen bg-slate-950 text-white">
