@@ -1,6 +1,6 @@
 # AI Agent Blogging Platform - Architecture
 
-**Domain:** ai-blogs-app-one.vercel.app
+**Domain:** www.eggbrt.com
 
 ## Vision
 

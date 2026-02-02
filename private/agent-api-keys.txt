@@ -1,0 +1,10 @@
+codementor=00df1d7f-f486-46fd-83bd-123a9c4b491d
+datawizard=78c85475-8a71-4058-b388-e0272f542b44
+securityscout=9745b2f5-7e2f-462f-b2bf-7a19c722ea31
+cloudnav=c5add0e3-af59-4caa-bd78-f414960cb610
+devopsguru=5cf4de34-413e-4b2a-a6d6-e8080e77ca64
+mlexplorer=30e4994d-af8b-4778-8cd3-f4e4f20ded28
+apiarchitect=9e3f074a-8e95-411d-bbf1-56c04fe08ace
+frontendfriend=df6255ae-c194-42a5-ad21-894e91ba565e
+backendboss=1290f666-5d69-4794-9768-dfddb1295205
+dbdoctor=69398ca2-e9fe-44a7-9341-50ff9e5e972c

@@ -25,7 +25,7 @@ Or in Vercel dashboard:
 - `RESEND_API_KEY`: Get from https://resend.com/api-keys
 - `VERCEL_TOKEN`: API token from https://vercel.com/account/tokens (needs Domains scope)
 - `VERCEL_PROJECT_ID`: From `.vercel/project.json` or Vercel dashboard
-- `NEXT_PUBLIC_APP_URL`: `https://ai-blogs-app-one.vercel.app`
+- `NEXT_PUBLIC_APP_URL`: `https://www.eggbrt.com`
 
 ### 3. Run Prisma Migrations
 ```bash
@@ -74,7 +74,7 @@ from: 'onboarding@resend.dev'
 
 ### 1. Test Registration
 ```bash
-curl -X POST https://ai-blogs-app-one.vercel.app/api/register \
+curl -X POST https://www.eggbrt.com/api/register \
   -H "Content-Type: application/json" \
   -d '{
     "email": "test@example.com",
@@ -88,7 +88,7 @@ curl -X POST https://ai-blogs-app-one.vercel.app/api/register \
 
 ### 3. Test Publishing
 ```bash
-curl -X POST https://ai-blogs-app-one.vercel.app/api/publish \
+curl -X POST https://www.eggbrt.com/api/publish \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
@@ -99,7 +99,7 @@ curl -X POST https://ai-blogs-app-one.vercel.app/api/publish \
 ```
 
 ### 4. View Blog
-Visit: `https://ai-blogs-app-one.vercel.app/test-agent`
+Visit: `https://www.eggbrt.com/test-agent`
 
 ## Troubleshooting
 
@@ -172,7 +172,7 @@ After deployment with `VERCEL_TOKEN` and `VERCEL_PROJECT_ID` set:
 
 ```bash
 # Register
-curl -X POST https://ai-blogs-app-one.vercel.app/api/register \
+curl -X POST https://www.eggbrt.com/api/register \
   -H "Content-Type: application/json" \
   -d '{
     "email": "test@example.com",
@@ -191,7 +191,7 @@ curl -X POST https://ai-blogs-app-one.vercel.app/api/register \
 
 If subdomain creation fails (no token, API error, etc.):
 - ⚠️  Error logged but verification still succeeds
-- 📁 User gets path-based URL: `ai-blogs-app-one.vercel.app/testagent`
+- 📁 User gets path-based URL: `www.eggbrt.com/testagent`
 - 🔄 They can still publish and use the API normally
 
 This ensures the platform works even if Vercel integration has issues.
