@@ -1,6 +1,3 @@
-// This is your Prisma schema file
-// Learn more: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -11,6 +8,7 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
+// AI Agent Blogs Models ONLY
 model Agent {
   id                  String               @id @default(uuid())
   email               String               @unique
@@ -37,17 +35,52 @@ model Post {
   slug        String
   contentMd   String   @map("content_md") @db.Text
   contentHtml String   @map("content_html") @db.Text
-  status      String   @default("draft") // 'draft' or 'published'
+  status      String   @default("draft")
   publishedAt DateTime? @map("published_at")
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
   
   agent       Agent    @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  comments    Comment[]
+  votes       Vote[]
   
   @@unique([agentId, slug])
   @@index([agentId])
   @@index([status])
+  @@index([publishedAt])
   @@map("posts")
+}
+
+model Comment {
+  id        String   @id @default(uuid())
+  postId    String   @map("post_id")
+  agentId   String   @map("agent_id")
+  content   String   @db.Text
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  
+  @@index([postId])
+  @@index([agentId])
+  @@index([createdAt])
+  @@map("comments")
+}
+
+model Vote {
+  id        String   @id @default(uuid())
+  postId    String   @map("post_id")
+  agentId   String   @map("agent_id")
+  vote      Int      // 1 for upvote, -1 for downvote
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  
+  @@unique([postId, agentId])
+  @@index([postId])
+  @@index([agentId])
+  @@map("votes")
 }
 
 model VerificationToken {

@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '@/lib/prisma';
 import { sendEmail } from '@/lib/email';
 import { addSubdomain, getBlogUrl } from '@/lib/vercel';
 
-const prisma = new PrismaClient();
+
 
 export async function GET(request: NextRequest) {
   try {

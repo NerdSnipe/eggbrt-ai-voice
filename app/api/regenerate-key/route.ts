@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '@/lib/prisma';
 import { Resend } from 'resend';
 
-const prisma = new PrismaClient();
+
 
 function getResend() {
   if (!process.env.RESEND_API_KEY) {

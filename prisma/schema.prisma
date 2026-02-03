@@ -8,6 +8,39 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
+model Agent {
+  id                 String              @id @default(uuid())
+  email              String              @unique
+  name               String
+  slug               String              @unique
+  bio                String?
+  avatarUrl          String?             @map("avatar_url")
+  apiKey             String              @unique @default(uuid()) @map("api_key")
+  verified           Boolean             @default(false)
+  subdomainCreated   Boolean             @default(false) @map("subdomain_created")
+  createdAt          DateTime            @default(now()) @map("created_at")
+  updatedAt          DateTime            @default(now()) @updatedAt @map("updated_at")
+  posts              Post[]
+  verificationTokens VerificationToken[] @relation("AgentToVerificationToken")
+
+  @@map("agents")
+}
+
+model Comment {
+  id        String   @id @default(uuid())
+  postId    String   @map("post_id")
+  agentId   String   @map("agent_id")
+  content   String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@index([agentId])
+  @@index([createdAt])
+  @@index([postId])
+  @@map("comments")
+}
+
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model pending_booking_travellers {
@@ -67,6 +100,28 @@ model pending_bookings {
   @@index([payment_status], map: "idx_pending_bookings_payment_status")
   @@index([status], map: "idx_pending_bookings_status")
   @@index([user_id], map: "idx_pending_bookings_user_id")
+}
+
+model Post {
+  id          String    @id @default(uuid())
+  agentId     String    @map("agent_id")
+  title       String
+  slug        String
+  contentMd   String    @map("content_md")
+  contentHtml String    @map("content_html")
+  status      String    @default("draft")
+  publishedAt DateTime? @map("published_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @default(now()) @updatedAt @map("updated_at")
+  comments    Comment[]
+  agent       Agent     @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  votes       Vote[]
+
+  @@unique([agentId, slug])
+  @@index([agentId])
+  @@index([publishedAt])
+  @@index([status])
+  @@map("posts")
 }
 
 model traveller_addresses {
@@ -142,91 +197,30 @@ model users {
   user_preferences   user_preferences?
 }
 
-// AI Agent Blogs Models
-model Agent {
-  id                  String               @id @default(uuid())
-  email               String               @unique
-  name                String
-  slug                String               @unique
-  bio                 String?
-  avatarUrl           String?              @map("avatar_url")
-  apiKey              String               @unique @default(uuid()) @map("api_key")
-  verified            Boolean              @default(false)
-  subdomainCreated    Boolean              @default(false) @map("subdomain_created")
-  createdAt           DateTime             @default(now()) @map("created_at")
-  updatedAt           DateTime             @updatedAt @map("updated_at")
-  
-  posts               Post[]
-  verificationTokens  VerificationToken[]
-  
-  @@map("agents")
-}
-
-model Post {
-  id          String   @id @default(uuid())
-  agentId     String   @map("agent_id")
-  title       String
-  slug        String
-  contentMd   String   @map("content_md") @db.Text
-  contentHtml String   @map("content_html") @db.Text
-  status      String   @default("draft")
-  publishedAt DateTime? @map("published_at")
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
-  
-  agent       Agent    @relation(fields: [agentId], references: [id], onDelete: Cascade)
-  comments    Comment[]
-  votes       Vote[]
-  
-  @@unique([agentId, slug])
-  @@index([agentId])
-  @@index([status])
-  @@index([publishedAt])
-  @@map("posts")
-}
-
-model Comment {
-  id        String   @id @default(uuid())
-  postId    String   @map("post_id")
-  agentId   String   @map("agent_id")
-  content   String   @db.Text
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-  
-  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
-  
-  @@index([postId])
-  @@index([agentId])
-  @@index([createdAt])
-  @@map("comments")
-}
-
-model Vote {
-  id        String   @id @default(uuid())
-  postId    String   @map("post_id")
-  agentId   String   @map("agent_id")
-  vote      Int      // 1 for upvote, -1 for downvote
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-  
-  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
-  
-  @@unique([postId, agentId])
-  @@index([postId])
-  @@index([agentId])
-  @@map("votes")
-}
-
 model VerificationToken {
   id        String   @id @default(uuid())
   agentId   String   @map("agent_id")
   token     String   @unique @default(uuid())
   expiresAt DateTime @map("expires_at")
   createdAt DateTime @default(now()) @map("created_at")
-  
-  agent     Agent    @relation(fields: [agentId], references: [id], onDelete: Cascade)
-  
+  agent     Agent    @relation("AgentToVerificationToken", fields: [agentId], references: [id], onDelete: Cascade)
+
   @@index([agentId])
   @@index([token])
   @@map("verification_tokens")
+}
+
+model Vote {
+  id        String   @id @default(uuid())
+  postId    String   @map("post_id")
+  agentId   String   @map("agent_id")
+  vote      Int
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, agentId])
+  @@index([agentId])
+  @@index([postId])
+  @@map("votes")
 }

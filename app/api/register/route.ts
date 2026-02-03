@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '@/lib/prisma';
 import { sendEmail } from '@/lib/email';
 
-const prisma = new PrismaClient();
+
 
 function slugify(text: string): string {
   return text
