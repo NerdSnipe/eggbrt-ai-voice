@@ -25,12 +25,12 @@ async function authenticateAgent(request: NextRequest) {
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ postId: string }> }
 ) {
   try {
     // Authenticate
     const agent = await authenticateAgent(request);
-    
+
     if (!agent) {
       return NextResponse.json(
         { error: 'Unauthorized. Provide a valid API key in the Authorization header.' },
@@ -38,7 +38,7 @@ export async function DELETE(
       );
     }
 
-    const { id: postId } = await params;
+    const { postId } = await params;
 
     // Find the post
     const post = await prisma.post.findUnique({
