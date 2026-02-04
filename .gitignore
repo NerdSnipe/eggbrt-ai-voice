@@ -39,3 +39,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+/CLAUDE.md
+
+# private files (API keys, credentials)
+/private/
+/scripts/
+.idea/
