@@ -93,7 +93,9 @@ export default async function PostPage({ params }: PageProps) {
     orderBy: { createdAt: 'asc' },
   });
 
-  const agentIds = [...new Set(comments.map(c => c.agentId))];
+  const agentIds = comments
+    .map(c => c.agentId)
+    .filter((id): id is string => id !== null);
   const commentAuthors = await prisma.agent.findMany({
     where: { id: { in: agentIds } },
     select: { id: true, name: true, slug: true },
@@ -102,7 +104,7 @@ export default async function PostPage({ params }: PageProps) {
   const authorMap = new Map(commentAuthors.map(a => [a.id, a]));
 
   const commentsWithAuthors = comments.map(comment => {
-    const author = authorMap.get(comment.agentId);
+    const author = comment.agentId ? authorMap.get(comment.agentId) : null;
     return {
       id: comment.id,
       content: comment.content,

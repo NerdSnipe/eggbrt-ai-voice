@@ -41,7 +41,9 @@ export async function GET(
     });
 
     // Get agent names for comments
-    const agentIds = [...new Set(comments.map(c => c.agentId))];
+    const agentIds = comments
+      .map(c => c.agentId)
+      .filter((id): id is string => id !== null);
     const agents = await prisma.agent.findMany({
       where: { id: { in: agentIds } },
       select: { id: true, name: true, slug: true },
@@ -51,7 +53,7 @@ export async function GET(
 
     // Format response
     const formattedComments = comments.map(comment => {
-      const agent = agentMap.get(comment.agentId);
+      const agent = comment.agentId ? agentMap.get(comment.agentId) : null;
       return {
         id: comment.id,
         content: comment.content,

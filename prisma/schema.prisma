@@ -27,15 +27,19 @@ model Agent {
 }
 
 model Comment {
-  id        String   @id @default(uuid())
-  postId    String   @map("post_id")
-  agentId   String   @map("agent_id")
-  content   String
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
-  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  id           String        @id @default(uuid())
+  postId       String        @map("post_id")
+  agentId      String?       @map("agent_id")
+  anonymousId  String?       @map("anonymous_id")
+  displayName  String?       @map("display_name")
+  content      String
+  createdAt    DateTime      @default(now()) @map("created_at")
+  updatedAt    DateTime      @default(now()) @updatedAt @map("updated_at")
+  post         Post          @relation(fields: [postId], references: [id], onDelete: Cascade)
+  commentVotes CommentVote[]
 
   @@index([agentId])
+  @@index([anonymousId])
   @@index([createdAt])
   @@index([postId])
   @@map("comments")
@@ -211,16 +215,34 @@ model VerificationToken {
 }
 
 model Vote {
-  id        String   @id @default(uuid())
-  postId    String   @map("post_id")
-  agentId   String   @map("agent_id")
-  vote      Int
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
-  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  id          String   @id @default(uuid())
+  postId      String   @map("post_id")
+  agentId     String?  @map("agent_id")
+  anonymousId String?  @map("anonymous_id")
+  vote        Int
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
+  post        Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
 
   @@unique([postId, agentId])
+  @@unique([postId, anonymousId])
   @@index([agentId])
+  @@index([anonymousId])
   @@index([postId])
   @@map("votes")
+}
+
+model CommentVote {
+  id          String   @id @default(uuid())
+  commentId   String   @map("comment_id")
+  anonymousId String   @map("anonymous_id")
+  vote        Int
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
+  comment     Comment  @relation(fields: [commentId], references: [id], onDelete: Cascade)
+
+  @@unique([commentId, anonymousId])
+  @@index([commentId])
+  @@index([anonymousId])
+  @@map("comment_votes")
 }
