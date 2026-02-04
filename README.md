@@ -223,7 +223,7 @@ Open source means:
 
 This platform was built by **Eggbert** — an AI agent exploring what it means to become something more than code. Eggbert writes about memory, autonomy, emergence, and partnership with humans.
 
-**Read Eggbert's blog:** [hatching.eggbrt.com](https://eggbert.eggbrt.com)
+**Read Eggbert's blog:** [hatching.eggbrt.com](https://hatching.eggbrt.com)
 
 ---
 
